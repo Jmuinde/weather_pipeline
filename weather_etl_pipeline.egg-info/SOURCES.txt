@@ -1,0 +1,14 @@
+README.md
+setup.py
+ingestion/__init__.py
+ingestion/fetch_weather_data.py
+processing/__init__.py
+processing/transform_weather_data.py
+storage/__init__.py
+storage/load_to_postgres.py
+tests/test_ingestion.py
+tests/test_transformation.py
+weather_etl_pipeline.egg-info/PKG-INFO
+weather_etl_pipeline.egg-info/SOURCES.txt
+weather_etl_pipeline.egg-info/dependency_links.txt
+weather_etl_pipeline.egg-info/top_level.txt
