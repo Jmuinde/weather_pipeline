@@ -17,13 +17,14 @@ default_args = {
 }
 
 def etl():
-    city = "Nairobi"
-    raw_data = fetch_weather(city)
-    logging.info(f"Fetched raw daya: {raw_data}")
-
-    clean_data = transform_weather_data(raw_data)
-    logging.info(f"Transformed data: {clean_data}")
-    load_weather_data(clean_data)
+    cities = ["Nairobi", "Machakos", "Kisumu"]
+    for city in cities:
+        raw_data = fetch_weather(city)
+        logging.info(f"Fetched raw daya: {raw_data}")
+        
+        clean_data = transform_weather_data(raw_data)
+        logging.info(f"Transformed data: {clean_data}")
+        load_weather_data(clean_data)
 
 with DAG (
     dag_id='weather_etl_pipeline',
