@@ -9,7 +9,7 @@ def transform_weather_data(raw_data):
 	transformed = {
 		'city': raw_data['city']['name'],
 		'timestamp': raw_data['list'][0]['dt'],
-		'temprature':raw_data['list'][0]['main']['temp'],
+		'temperature':raw_data['list'][0]['main']['temp'],
 		'humidity':raw_data['list'][0]['main']['humidity'],
 		'pressure':raw_data['list'][0]['main']['pressure'],
 		'weather': raw_data['list'][0]['weather'][0]['description']
