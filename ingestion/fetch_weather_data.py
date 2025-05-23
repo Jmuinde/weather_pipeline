@@ -6,6 +6,7 @@ Data extraction module
 import requests
 import sys
 import os
+import logging
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -25,6 +26,8 @@ def fetch_weather(city_name):
     respone = requests.get(BASE_URL, params=params)
     respone.raise_for_status()
     return respone.json()
+
+
 if __name__ == "__main__":
     city = "Nairobi"
     data = fetch_weather(city)

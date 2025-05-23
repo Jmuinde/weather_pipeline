@@ -16,27 +16,62 @@ default_args = {
     'retry_delay': timedelta(minutes=2)
 }
 
-def etl():
+# Task 1 - Extract data 
+
+def extract_data(**context):
     cities = ["Nairobi", "Machakos", "Kisumu"]
+    all_raw_data = []
     for city in cities:
         raw_data = fetch_weather(city)
-        logging.info(f"Fetched raw daya: {raw_data}")
+        logging.info(f"Fetched raw data: {raw_data}")
+        all_raw_data.append(raw_data)
+
+    # Push data to XCom
+    context['ti'].xcom_push(key='raw_weather_data', value=all_raw_data)
+
+# Task 2: Transform data 
+def transform_data(**context):
         
+        raw_data = context['ti'].xcom_pull(task_ids='extract_task', key='raw_weather_data')
         clean_data = transform_weather_data(raw_data)
         logging.info(f"Transformed data: {clean_data}")
-        load_weather_data(clean_data)
 
+        # Push cleaned data to XCom
+        context['ti'].xcom_push(key='clean_weather_data', value=clean_data)
+    
+
+# Task 3: Load data 
+
+def load_data(**context):
+     clean_data = context['ti'].xcom_pull(task_ids='transform_task', key='clean_weather_data')
+     load_weather_data(clean_data)
+     logging.info("loaded data to Postgresql")
+
+# Define the DAG and TASKS
 with DAG (
     dag_id='weather_etl_pipeline',
     default_args=default_args,
-    start_date=datetime(2025,5,20),
+    start_date=datetime(2025,5,23),
     schedule='*/5 * * * *', # Every 5 minutes
     catchup=False
 ) as dag:
 
-    run_etl = PythonOperator(
-        task_id='run_weather_etl',
-        python_callable=etl
+    task_1 = PythonOperator(
+        task_id='extract_task',
+        python_callable=extract_data,
+        provide_context=True
     )
 
-    run_etl
+    task_2 = PythonOperator(
+         task_id='transform_task',
+         python_callable=transform_data,
+         provide_context=True
+    )
+
+    task_3 = PythonOperator(
+         task_id='load_task',
+         python_callable=load_data,
+         provide_context=True
+    )
+
+    task_1 >> task_2 >> task_3

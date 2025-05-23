@@ -16,12 +16,9 @@ def load_weather_data(data):
 	logging.info("Starting DB Load...")
 	logging.info(f"DATABASE_URL = {DB_URL}")
 
-	required_keys = ['city', 'timestamp', 'temperature', 'humidity', 'pressure', 'weather']
-	missing_keys = [key for key in required_keys if key not in data]
-
-	if missing_keys:
-		logging.error(f"Missing required keys in data: {missing_keys}")
-		return  # Abort DB insert
+	if not data:
+		logging.warning("No data received in the DB")
+		return
 
 	try:
 		conn = psycopg2.connect(DB_URL)
@@ -46,17 +43,23 @@ def load_weather_data(data):
 		INSERT INTO weather_data (city, timestamp, temperature, humidity, pressure, weather)
 		VALUES (%s, %s, %s, %s, %s, %s);
 		"""
-		cur.execute(insert_query, (
-			data['city'],
-			data['timestamp'],
-			data['temperature'],
-			data['humidity'],
-			data['pressure'],
-			data['weather']
-		))
+		for row in data:
+			missing_keys = [key for key in ['city', 'timestamp', 'temperature', 'humidity', 'pressure', 'weather'] if key not in row]
+			if missing_keys:
+				logging.warning(f"Skipping row with missing keys: {missing_keys}")
+				continue
+
+			cur.execute(insert_query, (
+				row['city'],
+				row['timestamp'],
+				row['temperature'],
+				row['humidity'],
+				row['pressure'],
+				row['weather']
+			))
 
 		conn.commit()
-		logging.info("Data inserted successfully!")
+		logging.info("All data inserted successfully!")
 
 	except Exception as e:
 		logging.error(f"Error inserting data: {e}")
@@ -64,4 +67,4 @@ def load_weather_data(data):
 	finally:
 		if 'cur' in locals(): cur.close()
 		if 'conn' in locals(): conn.close()
-
+		

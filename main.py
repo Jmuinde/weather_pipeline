@@ -11,6 +11,7 @@ if __name__ == "__main__":
 		for city in cities:
 			raw = fetch_weather(city)
 			clean = transform_weather_data(raw)
+			
 			print(clean)
 		print("sleeping for a minute...\n")
 		time.sleep(60) # sleep for 60 seconds
